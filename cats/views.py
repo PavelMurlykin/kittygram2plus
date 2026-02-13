@@ -1,5 +1,6 @@
+from django_filters.rest_framework import DjangoFilterBackend
 # from rest_framework import permissions
-from rest_framework import viewsets
+from rest_framework import filters, viewsets
 
 # from rest_framework.pagination import PageNumberPagination
 # from rest_framework.pagination import LimitOffsetPagination
@@ -31,6 +32,13 @@ class CatViewSet(viewsets.ModelViewSet):
     throttle_classes = (WorkingHoursRateThrottle, ScopedRateThrottle)
     # А далее применится лимит low_request
     throttle_scope = 'low_request'
+
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter,
+                       filters.OrderingFilter)
+    filterset_fields = ('color', 'birth_year')
+    search_fields = ('name', 'achievements__name', 'owner__username')
+    ordering_fields = ('name', 'birth_year')
+    ordering = ('birth_year',)  # сортировка по умолчанию
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
